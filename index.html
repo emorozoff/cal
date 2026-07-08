@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0e0e10" id="metaTheme">
-<meta name="description" content="Калькулятор дохода с YouTube Shorts: прикинь заработок от рекламы по числу просмотров. Диапазон оценок, дубль в рублях по курсу ЦБ.">
+<meta name="description" content="Калькулятор дохода с YouTube Shorts: видео в месяц × средние просмотры × RPM = доход. Дубль в рублях по курсу ЦБ, обратный расчёт по числу видео.">
 <title>$horts — калькулятор дохода с YouTube Shorts</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e0e10'/%3E%3Ctext x='16' y='23' font-size='22' font-family='Georgia,serif' font-weight='700' text-anchor='middle' fill='%2334e39b'%3E$%3C/text%3E%3C/svg%3E">
 
@@ -15,7 +15,6 @@
     --panel:#16161a;
     --panel-2:#1c1c22;
     --line:rgba(255,255,255,.09);
-    --line-2:rgba(255,255,255,.05);
     --ink:#f3f3f0;
     --muted:#8b8b93;
     --muted-2:#6a6a72;
@@ -29,7 +28,6 @@
     --panel:#f4f3ef;
     --panel-2:#e5e4dc;
     --line:rgba(24,24,18,.14);
-    --line-2:rgba(24,24,18,.05);
     --ink:#17170f;
     --muted:#5f5f56;
     --muted-2:#8d8d82;
@@ -69,7 +67,7 @@
       radial-gradient(54% 46% at 75% 87%,#000 0%,transparent 72%),
       radial-gradient(44% 42% at 30% 66%,#000 0%,transparent 72%);
   }
-  .wrap{max-width:660px;margin:0 auto;padding:26px 18px 0;position:relative;z-index:1}
+  .wrap{max-width:680px;margin:0 auto;padding:26px 18px 0;position:relative;z-index:1}
 
   /* ---- header ---- */
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
@@ -80,8 +78,11 @@
   .theme-btn:hover{border-color:var(--acc);color:var(--ink)}
   .theme-btn svg{width:18px;height:18px;display:block}
   .ver{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
-  .tag{color:var(--muted);font-size:14px;margin:0 0 22px}
+  .tag{color:var(--muted);font-size:14px;margin:0 0 22px;max-width:60ch}
   .tag b{color:var(--ink);font-weight:600}
+
+  /* ---- layout ---- */
+  .layout{display:grid;gap:14px}
 
   /* ---- panels ---- */
   .card{
@@ -89,21 +90,21 @@
     border:1px solid var(--line);
     border-radius:var(--radius);
     padding:18px 16px;
-    margin-bottom:14px;
   }
+  .result{background:linear-gradient(180deg,var(--panel-2),var(--panel))}
   .card h2{
     font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--muted);font-weight:600;margin:0 0 14px;
+    color:var(--muted);font-weight:600;margin:0 0 16px;
   }
 
   /* ---- fields ---- */
   .field{margin-bottom:16px}
   .field:last-child{margin-bottom:0}
   label.lab{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  .row>*{flex:1 1 0;min-width:0}
+  .hint{font-size:12px;color:var(--muted-2);margin-top:7px;font-family:var(--mono)}
+  .hint b{color:var(--muted)}
 
-  input[type=number],input[type=text],select{
+  input[type=number]{
     width:100%;
     background:var(--panel-2);
     border:1px solid var(--line);
@@ -114,93 +115,68 @@
     border-radius:10px;
     -webkit-appearance:none;appearance:none;
   }
-  input:focus,select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim)}
-  select{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b8b93' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;
-  }
+  input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim)}
   .unit{position:relative}
   .unit .u{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-family:var(--mono);font-size:13px;pointer-events:none}
 
-  input[type=range]{
-    -webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;margin:4px 0 0;cursor:pointer;
-  }
-  input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:3px;background:var(--line)}
-  input[type=range]::-moz-range-track{height:3px;border-radius:3px;background:var(--line)}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--acc);border:3px solid var(--bg);margin-top:-8px}
-  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--acc);border:3px solid var(--bg)}
-  .ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted-2);margin-top:2px}
-
-  /* ---- segmented (geo) ---- */
-  .seg{display:flex;flex-direction:column;gap:8px}
-  .seg button{
-    text-align:left;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);
-    padding:10px 12px;border-radius:10px;font-family:var(--sans);font-size:13px;cursor:pointer;
-    display:flex;align-items:center;gap:10px;transition:border-color .12s,color .12s;
-  }
-  .seg button .t{font-family:var(--mono);font-weight:700;color:var(--ink);font-size:13px;flex:0 0 auto}
-  .seg button.on{border-color:var(--acc);color:var(--ink);background:var(--acc-dim)}
-  .seg button.on .t{color:var(--acc)}
-
-  /* ---- toggle row ---- */
-  .toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-size:13px;color:var(--muted)}
-  .toggle input{position:absolute;opacity:0;pointer-events:none}
-  .sw{width:38px;height:22px;border-radius:22px;background:var(--panel-2);border:1px solid var(--line);position:relative;flex:0 0 auto;transition:background .15s,border-color .15s}
-  .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:transform .15s,background .15s}
-  .toggle input:checked+.sw{background:var(--acc-dim);border-color:var(--acc)}
-  .toggle input:checked+.sw::after{transform:translateX(16px);background:var(--acc)}
-
-  .adv{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
-  .adv.show{display:block}
-
-  details{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
-  summary{cursor:pointer;color:var(--muted);font-size:13px;list-style:none}
-  summary::-webkit-details-marker{display:none}
-  summary::before{content:"+ ";color:var(--acc);font-family:var(--mono)}
-  details[open] summary::before{content:"− "}
-  details .row{margin-top:12px}
+  .rate-row{display:flex;gap:8px}
+  .rate-row input{flex:1}
+  .icon-btn{width:46px;flex:0 0 auto;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s,color .12s}
+  .icon-btn:hover{border-color:var(--acc);color:var(--ink)}
+  .icon-btn svg{width:19px;height:19px;display:block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .icon-btn.spin svg{animation:spin .8s linear infinite}
 
   /* ---- result ---- */
-  .result{background:linear-gradient(180deg,var(--panel-2),var(--panel));border-color:var(--line)}
-  .big{font-family:var(--mono);font-weight:700;letter-spacing:-1px;line-height:1;font-size:clamp(38px,12vw,56px)}
+  .big{font-family:var(--mono);font-weight:700;letter-spacing:-1px;line-height:1;font-size:clamp(40px,11vw,58px)}
   .big .cur{color:var(--acc)}
-  .big-rub{font-family:var(--mono);font-size:clamp(17px,5vw,22px);color:var(--muted);margin-top:8px}
-  .per{font-size:12px;color:var(--muted-2);margin-top:4px}
+  .big-rub{font-family:var(--mono);font-size:clamp(17px,4.5vw,22px);color:var(--muted);margin-top:8px}
+  .per{font-size:12px;color:var(--muted-2);margin-top:6px}
   .dm{display:flex;gap:10px;margin-top:16px}
   .dm div{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
   .dm .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
   .dm .v{font-family:var(--mono);font-size:16px;margin-top:3px}
   .dm .v small{color:var(--muted);font-size:12px}
 
-  /* ---- range chart ---- */
-  .chart{margin-top:6px}
+  .chart{margin-top:16px}
   .chart svg{width:100%;height:auto;display:block}
   .scn-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
-  .permil{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:14px;text-align:center}
+  .permil{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:16px;text-align:center}
   .permil b{color:var(--acc)}
 
-  /* ---- rate note ---- */
   .rate{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted-2);margin-top:10px;flex-wrap:wrap}
   .rate .dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex:0 0 auto}
   .rate.stale .dot{background:var(--warn)}
 
+  /* ---- reverse ---- */
+  .rev-out{margin-top:16px;font-family:var(--mono)}
+  .rev-out .n{font-size:clamp(30px,7vw,40px);font-weight:700;color:var(--acc);letter-spacing:-.5px}
+  .rev-out .lbl{font-size:15px;color:var(--ink)}
+  .rev-out .sub{font-family:var(--sans);font-size:12.5px;color:var(--muted-2);margin-top:8px;line-height:1.6}
+
   /* ---- actions ---- */
-  .actions{display:flex;gap:10px;margin-top:2px}
+  .actions{margin-top:14px}
   .btn{
-    flex:1;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
-    padding:12px;border-radius:11px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;
-    transition:border-color .12s,background .12s;
+    width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    padding:13px;border-radius:11px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;
+    transition:border-color .12s,color .12s;
   }
   .btn:hover{border-color:var(--acc)}
   .btn.copied{border-color:var(--acc);color:var(--acc)}
 
-  .disc{font-size:12px;color:var(--muted-2);line-height:1.55;margin:6px 2px 0}
+  .disc{font-size:12px;color:var(--muted-2);line-height:1.55;margin:16px 2px 0;max-width:70ch}
+  .disc b{color:var(--muted)}
   footer{text-align:center;color:var(--muted-2);font-size:12px;margin-top:26px}
-  footer a{color:var(--muted)}
 
-  @media(min-width:560px){
-    .seg{flex-direction:row;flex-wrap:wrap}
-    .seg button{flex:1 1 30%}
+  /* ---- wide / laptop ---- */
+  @media(min-width:900px){
+    .wrap{max-width:1060px;padding-top:38px}
+    .layout{grid-template-columns:1fr 1fr;align-items:start}
+    .inputs{grid-column:1;grid-row:1 / span 2}
+    .result{grid-column:2;grid-row:1}
+    .reverse{grid-column:2;grid-row:2}
+    .card{padding:22px 22px}
+    .actions{max-width:520px}
   }
 </style>
 
@@ -211,99 +187,84 @@
     <div class="brand"><span class="d">$</span>horts</div>
     <div class="head-right">
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Сменить тему"></button>
-      <div class="ver" id="ver">v0.1</div>
+      <div class="ver" id="ver">v0.3</div>
     </div>
   </header>
-  <p class="tag">Прикинь доход канала на <b>YouTube Shorts</b> от рекламы по числу просмотров.</p>
+  <p class="tag">Прикинь доход канала на <b>YouTube Shorts</b>: сколько видео в месяц, средние просмотры и RPM — получишь заработок.</p>
 
-  <!-- INPUTS -->
-  <div class="card">
-    <h2>Данные канала</h2>
+  <div class="layout">
+    <!-- INPUTS -->
+    <section class="card inputs">
+      <h2>Данные канала</h2>
 
-    <div class="field">
-      <label class="lab" for="views">Просмотров Shorts в месяц</label>
-      <div class="unit">
-        <input type="number" id="views" min="0" step="1000" value="1000000" inputmode="numeric">
-        <span class="u">просмотров</span>
+      <div class="field">
+        <label class="lab" for="count">Видео в месяц</label>
+        <div class="unit">
+          <input type="number" id="count" min="0" step="1" value="30" inputmode="numeric">
+          <span class="u">видео</span>
+        </div>
       </div>
-      <input type="range" id="viewsRange" min="0" max="1000" value="500">
-      <div class="ticks"><span>10 тыс.</span><span>100 тыс.</span><span>1 млн</span><span>10 млн</span><span>100 млн</span></div>
 
-      <details>
-        <summary>Посчитать из числа роликов</summary>
-        <div class="row">
-          <div>
-            <label class="lab" for="perShort">Ср. просмотров на 1 ролик</label>
-            <input type="number" id="perShort" min="0" step="100" value="20000" inputmode="numeric">
-          </div>
-          <div>
-            <label class="lab" for="count">Роликов в месяц</label>
-            <input type="number" id="count" min="0" step="1" value="50" inputmode="numeric">
-          </div>
+      <div class="field">
+        <label class="lab" for="avgViews">Среднее просмотров на видео</label>
+        <div class="unit">
+          <input type="number" id="avgViews" min="0" step="1000" value="50000" inputmode="numeric">
+          <span class="u">просмотров</span>
         </div>
-      </details>
-    </div>
+        <div class="hint" id="totalViews"></div>
+      </div>
 
-    <div class="field">
-      <label class="lab" for="niche">Ниша канала</label>
-      <select id="niche"></select>
-    </div>
+      <div class="field">
+        <label class="lab" for="rpm">RPM Shorts, $ / 1000 просмотров</label>
+        <input type="number" id="rpm" min="0" step="0.005" value="0.05" inputmode="decimal">
+        <div class="hint">У Shorts обычно $0.02–0.10 за 1000 просмотров</div>
+      </div>
 
-    <div class="field">
-      <label class="lab">География основной аудитории</label>
-      <div class="seg" id="geo"></div>
-    </div>
-
-    <label class="toggle field" style="margin-bottom:0">
-      <input type="checkbox" id="advToggle"><span class="sw"></span>
-      Продвинутый режим — задать RPM и курс вручную
-    </label>
-    <div class="adv" id="adv">
-      <div class="row">
-        <div>
-          <label class="lab" for="rpm">RPM Shorts, $ / 1000</label>
-          <input type="number" id="rpm" min="0" step="0.005" value="0.035" inputmode="decimal">
-        </div>
-        <div>
-          <label class="lab" for="rate">Курс USD → ₽</label>
+      <div class="field" style="margin-bottom:0">
+        <label class="lab" for="rate">Курс USD → ₽</label>
+        <div class="rate-row">
           <input type="number" id="rate" min="0" step="0.01" value="76.13" inputmode="decimal">
+          <button class="icon-btn" id="refreshRate" type="button" aria-label="Обновить курс из интернета" title="Обновить курс из интернета">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 4.5V10H15"/></svg>
+          </button>
         </div>
+        <div class="rate" id="rateNote"><span class="dot"></span><span id="rateText">курс загружается…</span></div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- RESULT -->
-  <div class="card result">
-    <h2>Оценка дохода в месяц</h2>
-    <div class="big"><span class="cur">$</span><span id="outUsd">—</span></div>
-    <div class="big-rub">≈ <span id="outRub">—</span> ₽</div>
-    <div class="per" id="outScenario">реалистичный сценарий</div>
+    <!-- RESULT -->
+    <section class="card result">
+      <h2>Оценка дохода в месяц</h2>
+      <div class="big"><span class="cur">$</span><span id="outUsd">—</span></div>
+      <div class="big-rub">≈ <span id="outRub">—</span> ₽</div>
+      <div class="per">реалистичный сценарий · разброс RPM ±30%</div>
 
-    <div class="dm">
-      <div><div class="k">В день</div><div class="v" id="outDay">—</div></div>
-      <div><div class="k">В год</div><div class="v" id="outYear">—</div></div>
-    </div>
+      <div class="dm">
+        <div><div class="k">В день</div><div class="v" id="outDay">—</div></div>
+        <div><div class="k">В год</div><div class="v" id="outYear">—</div></div>
+      </div>
 
-    <div class="permil">На 1 млн просмотров: <b id="outPerMil">—</b></div>
+      <div class="permil">На 1 млн просмотров: <b id="outPerMil">—</b></div>
 
-    <div class="chart">
-      <div class="scn-legend"><span>пессимист</span><span>реалистично</span><span>оптимист</span></div>
-      <svg id="chart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
-    </div>
+      <div class="chart">
+        <div class="scn-legend"><span>пессимист</span><span>реалистично</span><span>оптимист</span></div>
+        <svg id="chart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+      </div>
+    </section>
 
-    <div class="rate" id="rateNote"><span class="dot"></span><span id="rateText">курс загружается…</span></div>
-  </div>
-
-  <!-- REVERSE -->
-  <div class="card">
-    <h2>Обратный расчёт</h2>
-    <label class="lab" for="goal">Сколько Shorts-просмотров в месяц нужно ради дохода…</label>
-    <div class="unit">
-      <input type="number" id="goal" min="0" step="50" value="1000" inputmode="numeric">
-      <span class="u">$ / мес</span>
-    </div>
-    <p class="permil" style="margin-top:14px;text-align:left">Нужно примерно <b id="outNeed">—</b> просмотров в месяц<br>
-      <span style="color:var(--muted-2)">(≈ <span id="outNeedDay">—</span> в день, по реалистичному RPM)</span></p>
+    <!-- REVERSE -->
+    <section class="card reverse">
+      <h2>Обратный расчёт</h2>
+      <label class="lab" for="goal">Хочу зарабатывать в месяц…</label>
+      <div class="unit">
+        <input type="number" id="goal" min="0" step="50" value="1000" inputmode="numeric">
+        <span class="u">$ / мес</span>
+      </div>
+      <div class="rev-out">
+        <div><span class="n" id="outNeed">—</span> <span class="lbl" id="outNeedLbl"></span></div>
+        <div class="sub" id="outNeedSub"></div>
+      </div>
+    </section>
   </div>
 
   <div class="actions">
@@ -311,7 +272,7 @@
   </div>
 
   <p class="disc">Это <b>оценка</b>, а не гарантия. Реальный RPM у Shorts зависит от ниши, страны зрителей,
-    сезона, доли просмотров с рекламой и музыки в ролике. YouTube забирает часть дохода из общего пула
+    сезона, доли просмотров с рекламой и музыки в ролике. YouTube берёт часть дохода из общего пула
     Shorts. Считай цифры как ориентир «по порядку величины».</p>
 
   <footer><span style="color:var(--acc)">$</span>horts · курс ₽ — ЦБ РФ · сделано для прикидки, не финсовет</footer>
@@ -319,9 +280,11 @@
 
 <script>
 "use strict";
-const VERSION="0.2";
+const VERSION="0.3";
 const FALLBACK_RATE=76.13;
-// цвета для inline-SVG (var() в презентационных атрибутах браузеры не резолвят) — читаем из текущей темы
+const CBR_URL="https://www.cbr-xml-daily.ru/daily_json.js";
+
+// цвета для inline-SVG (var() в презентационных атрибутах браузеры не резолвят) — читаем из темы
 let C={acc:"#34e39b",muted:"#8b8b93",muted2:"#6a6a72",line:"rgba(255,255,255,.14)"};
 function readColors(){
   const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();
@@ -329,98 +292,64 @@ function readColors(){
 }
 
 // ---- модель ----
-const NICHES=[
-  {id:"finance",name:"Финансы / бизнес / крипта",low:.05,mid:.09,high:.15},
-  {id:"tech",name:"Технологии / гаджеты",low:.04,mid:.07,high:.10},
-  {id:"edu",name:"Образование / лайфхаки",low:.03,mid:.05,high:.08},
-  {id:"vlog",name:"Влоги / lifestyle",low:.03,mid:.045,high:.06},
-  {id:"fun",name:"Развлечения / юмор / мемы",low:.02,mid:.035,high:.05},
-  {id:"game",name:"Гейминг",low:.02,mid:.035,high:.05},
-  {id:"music",name:"Музыка / танцы",low:.01,mid:.02,high:.03},
-  {id:"kids",name:"Дети / мультики",low:.01,mid:.02,high:.03},
-];
-const GEOS=[
-  {id:"t1",t:"T1",name:"США, UK, Канада, Австралия, Зап. Европа",mult:1.4},
-  {id:"t2",t:"T2",name:"Вост. Европа, Лат. Америка, Ближ. Восток",mult:1.0},
-  {id:"t3",t:"T3",name:"СНГ, Индия, ЮВ Азия, Африка",mult:.55},
-];
-const niche=id=>NICHES.find(n=>n.id===id)||NICHES[4];
-const geo=id=>GEOS.find(g=>g.id===id)||GEOS[1];
-
-// чистая функция: возвращает RPM {low,mid,high} для текущих настроек
-function rpmBand(s){
-  if(s.advanced){const b=Math.max(0,s.rpm);return {low:b*.7,mid:b,high:b*1.3};}
-  const n=niche(s.niche),m=geo(s.geo).mult;
-  return {low:n.low*m,mid:n.mid*m,high:n.high*m};
-}
-const incomeMonth=(views,rpm)=>Math.max(0,views)/1000*rpm; // $/мес
+const incomeMonth=(views,rpm)=>Math.max(0,views)/1000*Math.max(0,rpm); // $/мес
+const WEEKS_PER_MONTH=4.345;
 
 // ---- состояние ----
-const state={
-  views:1000000, niche:"fun", geo:"t3",
-  advanced:false, rpm:0.035, rate:FALLBACK_RATE, goal:1000,
-  perShort:20000, count:50, theme:"dark",
-};
+const state={ count:30, avgViews:50000, rpm:0.05, rate:FALLBACK_RATE, goal:1000, theme:"dark" };
 
 // ---- форматирование ----
 const nfInt=new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0});
 const fmtInt=n=>nfInt.format(Math.round(n));
-function usd(n){ // компактно и по-русски
+function usd(n){
   if(n>=1000) return fmtInt(n);
   if(n>=100)  return n.toFixed(0);
   return n.toFixed(2);
 }
-function bigViews(n){ // 1 200 000 -> "1,2 млн"
-  if(n>=1e6) return (n/1e6).toLocaleString("ru-RU",{maximumFractionDigits:1})+" млн";
-  if(n>=1e3) return (n/1e3).toLocaleString("ru-RU",{maximumFractionDigits:0})+" тыс.";
-  return fmtInt(n);
-}
-
-// ---- слайдер: лог-шкала 10^4 … 10^8 ----
-const posToViews=p=>Math.round(Math.pow(10,4+4*(p/1000))/1000)*1000;
-const viewsToPos=v=>{v=Math.max(10000,Math.min(1e8,v||10000));return Math.round((Math.log10(v)-4)/4*1000);};
+const dec1=n=>n.toLocaleString("ru-RU",{maximumFractionDigits:1});
 
 // ---- элементы ----
 const $=id=>document.getElementById(id);
 const el={
-  views:$("views"),viewsRange:$("viewsRange"),perShort:$("perShort"),count:$("count"),
-  niche:$("niche"),geo:$("geo"),advToggle:$("advToggle"),adv:$("adv"),rpm:$("rpm"),rate:$("rate"),
-  goal:$("goal"),
-  outUsd:$("outUsd"),outRub:$("outRub"),outScenario:$("outScenario"),outDay:$("outDay"),
-  outYear:$("outYear"),outPerMil:$("outPerMil"),chart:$("chart"),
-  outNeed:$("outNeed"),outNeedDay:$("outNeedDay"),
-  rateNote:$("rateNote"),rateText:$("rateText"),share:$("share"),ver:$("ver"),themeBtn:$("themeBtn"),
+  count:$("count"),avgViews:$("avgViews"),totalViews:$("totalViews"),rpm:$("rpm"),
+  rate:$("rate"),refreshRate:$("refreshRate"),rateNote:$("rateNote"),rateText:$("rateText"),
+  outUsd:$("outUsd"),outRub:$("outRub"),outDay:$("outDay"),outYear:$("outYear"),
+  outPerMil:$("outPerMil"),chart:$("chart"),
+  goal:$("goal"),outNeed:$("outNeed"),outNeedLbl:$("outNeedLbl"),outNeedSub:$("outNeedSub"),
+  share:$("share"),ver:$("ver"),themeBtn:$("themeBtn"),
 };
-
-// заполнить ниши / гео
-NICHES.forEach(n=>{const o=document.createElement("option");o.value=n.id;o.textContent=n.name;el.niche.appendChild(o);});
-GEOS.forEach(g=>{
-  const b=document.createElement("button");b.type="button";b.dataset.id=g.id;
-  b.innerHTML=`<span class="t">${g.t}</span><span>${g.name}</span>`;
-  b.onclick=()=>{state.geo=g.id;syncGeo();render();persist();};
-  el.geo.appendChild(b);
-});
-function syncGeo(){[...el.geo.children].forEach(b=>b.classList.toggle("on",b.dataset.id===state.geo));}
 
 // ---- рендер ----
 function render(){
-  const band=rpmBand(state);
-  const mUsd={low:incomeMonth(state.views,band.low),mid:incomeMonth(state.views,band.mid),high:incomeMonth(state.views,band.high)};
+  const views=Math.max(0,state.count)*Math.max(0,state.avgViews);
+  el.totalViews.innerHTML=`≈ <b>${fmtInt(views)}</b> просмотров в месяц`;
+
+  const band={low:state.rpm*0.7,mid:state.rpm,high:state.rpm*1.3};
+  const m={low:incomeMonth(views,band.low),mid:incomeMonth(views,band.mid),high:incomeMonth(views,band.high)};
   const r=state.rate;
 
-  el.outUsd.textContent=usd(mUsd.mid);
-  el.outRub.textContent=fmtInt(mUsd.mid*r);
-  el.outDay.innerHTML=`$${usd(mUsd.mid/30)} <small>· ${fmtInt(mUsd.mid/30*r)} ₽</small>`;
-  el.outYear.innerHTML=`$${usd(mUsd.mid*12)} <small>· ${fmtInt(mUsd.mid*12*r)} ₽</small>`;
+  el.outUsd.textContent=usd(m.mid);
+  el.outRub.textContent=fmtInt(m.mid*r);
+  el.outDay.innerHTML=`$${usd(m.mid/30)} <small>· ${fmtInt(m.mid/30*r)} ₽</small>`;
+  el.outYear.innerHTML=`$${usd(m.mid*12)} <small>· ${fmtInt(m.mid*12*r)} ₽</small>`;
   el.outPerMil.textContent=`$${(band.mid*1000).toFixed(0)} · ${fmtInt(band.mid*1000*r)} ₽`;
+  drawChart(m);
 
-  drawChart(mUsd);
-
-  // обратный расчёт
+  // обратный расчёт: сколько видео/мес ради цели
+  const perVideo=Math.max(0,state.avgViews)/1000*Math.max(0,state.rpm); // $ с одного видео
   const goal=Math.max(0,state.goal);
-  const need=band.mid>0?goal/band.mid*1000:0;
-  el.outNeed.textContent=need>0?`${fmtInt(need)} (${bigViews(need)})`:"—";
-  el.outNeedDay.textContent=fmtInt(need/30);
+  if(perVideo>0 && goal>0){
+    const need=goal/perVideo;
+    el.outNeed.textContent=fmtInt(Math.ceil(need));
+    el.outNeedLbl.textContent="видео в месяц";
+    el.outNeedSub.innerHTML=
+      `при среднем <b style="color:var(--muted)">${fmtInt(state.avgViews)}</b> просмотров на видео и RPM $${state.rpm}. `+
+      `Это ≈ ${dec1(need/WEEKS_PER_MONTH)} видео в неделю, по $${usd(perVideo)} с ролика.`;
+  } else {
+    el.outNeed.textContent="—";
+    el.outNeedLbl.textContent="";
+    el.outNeedSub.textContent="Укажи средние просмотры, RPM и цель больше нуля.";
+  }
 }
 
 function drawChart(m){
@@ -441,46 +370,36 @@ function drawChart(m){
 }
 
 // ---- ввод ----
-function setViews(v,{fromRange=false}={}){
-  v=Math.max(0,Math.round(v||0));state.views=v;
-  if(!fromRange)el.viewsRange.value=viewsToPos(v);
-  el.views.value=v;render();persist();
-}
-el.views.addEventListener("input",()=>setViews(parseFloat(el.views.value)));
-el.viewsRange.addEventListener("input",()=>setViews(posToViews(+el.viewsRange.value),{fromRange:true}));
-
-function fromShorts(){
-  const total=Math.max(0,(+el.perShort.value||0))*Math.max(0,(+el.count.value||0));
-  state.perShort=+el.perShort.value||0;state.count=+el.count.value||0;
-  setViews(total);
-}
-el.perShort.addEventListener("input",fromShorts);
-el.count.addEventListener("input",fromShorts);
-
-el.niche.addEventListener("change",()=>{state.niche=el.niche.value;render();persist();});
-el.advToggle.addEventListener("change",()=>{state.advanced=el.advToggle.checked;el.adv.classList.toggle("show",state.advanced);render();persist();});
+el.count.addEventListener("input",()=>{state.count=Math.max(0,Math.floor(+el.count.value||0));render();persist();});
+el.avgViews.addEventListener("input",()=>{state.avgViews=Math.max(0,Math.floor(+el.avgViews.value||0));render();persist();});
 el.rpm.addEventListener("input",()=>{state.rpm=Math.max(0,+el.rpm.value||0);render();persist();});
-el.rate.addEventListener("input",()=>{state.rate=Math.max(0,+el.rate.value||0);markRate("Курс задан вручную",false);render();persist();});
 el.goal.addEventListener("input",()=>{state.goal=Math.max(0,+el.goal.value||0);render();persist();});
+el.rate.addEventListener("input",()=>{state.rate=Math.max(0,+el.rate.value||0);state._rateManual=true;markRate("Курс задан вручную",false);render();persist();});
 
 // ---- курс ЦБ ----
 function markRate(text,stale){el.rateText.textContent=text;el.rateNote.classList.toggle("stale",!!stale);}
-function loadRate(){
-  fetch("https://www.cbr-xml-daily.ru/daily_json.js",{cache:"no-store"})
+function loadRate(done){
+  fetch(CBR_URL,{cache:"no-store"})
     .then(r=>{if(!r.ok)throw 0;return r.json();})
     .then(d=>{
       const v=d&&d.Valute&&d.Valute.USD&&d.Valute.USD.Value;
       if(!v)throw 0;
-      if(!state._rateManual){state.rate=Math.round(v*100)/100;el.rate.value=state.rate;}
+      state.rate=Math.round(v*100)/100;state._rateManual=false;el.rate.value=state.rate;
       const date=(d.Date||"").slice(0,10).split("-").reverse().join(".");
-      markRate(`Курс ЦБ РФ: 1$ = ${state.rate} ₽${date?` · на ${date}`:""}`,false);
-      render();
+      markRate(`Курс ЦБ РФ: 1$ = ${state.rate} ₽${date?` · ${date}`:""}`,false);
+      render();persist();
     })
-    .catch(()=>markRate(`Курс не обновился, взято ${state.rate} ₽ за $`,true));
+    .catch(()=>markRate(`Не удалось обновить, курс ${state.rate} ₽ за $`,true))
+    .then(()=>{if(done)done();});
 }
+el.refreshRate.addEventListener("click",()=>{
+  el.refreshRate.classList.add("spin");
+  markRate("обновляю курс…",false);
+  loadRate(()=>el.refreshRate.classList.remove("spin"));
+});
 
 // ---- URL + localStorage ----
-const KEYS=["views","niche","geo","advanced","rpm","rate","goal","perShort","count"];
+const KEYS=["count","avgViews","rpm","rate","goal"];
 function persist(){
   const p=new URLSearchParams();
   KEYS.forEach(k=>p.set(k,state[k]));
@@ -493,14 +412,12 @@ function restore(){
   if([...q.keys()].length){src=q;}
   else{try{const j=JSON.parse(localStorage.getItem("shorts_state")||"null");if(j)src=new Map(Object.entries(j).map(([k,v])=>[k,String(v)]));}catch(e){}}
   if(!src)return;
-  const get=k=>src instanceof URLSearchParams?src.get(k):src.get(k);
+  const get=k=>src.get(k);
   KEYS.forEach(k=>{
     const raw=get(k);if(raw==null)return;
-    if(k==="advanced")state[k]=raw==="true";
-    else if(["niche","geo"].includes(k))state[k]=raw;
-    else state[k]=parseFloat(raw)||0;
+    const num=parseFloat(raw)||0;
+    state[k]=(k==="count"||k==="avgViews")?Math.max(0,Math.floor(num)):Math.max(0,num);
   });
-  if(q.get("rate"))state._rateManual=true;
 }
 
 // ---- тема ----
@@ -517,20 +434,7 @@ function setTheme(theme,save){
 }
 el.themeBtn.addEventListener("click",()=>setTheme(state.theme==="dark"?"light":"dark",true));
 
-// ---- init ----
-function init(){
-  el.ver.textContent="v"+VERSION;
-  setTheme(document.documentElement.getAttribute("data-theme")||"dark",false);
-  restore();
-  el.views.value=state.views;el.viewsRange.value=viewsToPos(state.views);
-  el.niche.value=state.niche;syncGeo();
-  el.advToggle.checked=state.advanced;el.adv.classList.toggle("show",state.advanced);
-  el.rpm.value=state.rpm;el.rate.value=state.rate;el.goal.value=state.goal;
-  el.perShort.value=state.perShort;el.count.value=state.count;
-  render();persist();
-  if(!state._rateManual)loadRate();else markRate("Курс задан вручную",false);
-}
-
+// ---- share ----
 el.share.addEventListener("click",()=>{
   const url=location.href;
   const done=()=>{el.share.classList.add("copied");el.share.textContent="✓ Ссылка скопирована";setTimeout(()=>{el.share.classList.remove("copied");el.share.textContent="🔗 Скопировать ссылку на расчёт";},1800);};
@@ -538,5 +442,15 @@ el.share.addEventListener("click",()=>{
   else{const t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();try{document.execCommand("copy");}catch(e){}t.remove();done();}
 });
 
+// ---- init ----
+function init(){
+  el.ver.textContent="v"+VERSION;
+  setTheme(document.documentElement.getAttribute("data-theme")||"dark",false);
+  restore();
+  el.count.value=state.count;el.avgViews.value=state.avgViews;
+  el.rpm.value=state.rpm;el.rate.value=state.rate;el.goal.value=state.goal;
+  render();persist();
+  loadRate(); // автообновление курса из интернета при загрузке
+}
 init();
 </script>
