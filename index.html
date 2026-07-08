@@ -1,12 +1,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e0e10">
+<meta name="theme-color" content="#0e0e10" id="metaTheme">
 <meta name="description" content="Калькулятор дохода с YouTube Shorts: прикинь заработок от рекламы по числу просмотров. Диапазон оценок, дубль в рублях по курсу ЦБ.">
 <title>$horts — калькулятор дохода с YouTube Shorts</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e0e10'/%3E%3Ctext x='16' y='23' font-size='22' font-family='Georgia,serif' font-weight='700' text-anchor='middle' fill='%2334e39b'%3E$%3C/text%3E%3C/svg%3E">
 
 <style>
   :root{
+    --radius:14px;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+    /* --- тёмная тема (по умолчанию) --- */
     --bg:#0e0e10;
     --panel:#16161a;
     --panel-2:#1c1c22;
@@ -18,9 +22,21 @@
     --acc:#34e39b;
     --acc-dim:rgba(52,227,155,.14);
     --warn:#e3b134;
-    --radius:14px;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+    --grid:rgba(255,255,255,.06);
+  }
+  :root[data-theme="light"]{
+    --bg:#e9e8e2;
+    --panel:#f4f3ef;
+    --panel-2:#e5e4dc;
+    --line:rgba(24,24,18,.14);
+    --line-2:rgba(24,24,18,.05);
+    --ink:#17170f;
+    --muted:#5f5f56;
+    --muted-2:#8d8d82;
+    --acc:#0f9d5b;
+    --acc-dim:rgba(15,157,91,.15);
+    --warn:#b7860a;
+    --grid:rgba(24,24,18,.07);
   }
   *{box-sizing:border-box}
   html,body{margin:0}
@@ -33,18 +49,36 @@
     padding:
       env(safe-area-inset-top) env(safe-area-inset-right)
       calc(env(safe-area-inset-bottom) + 32px) env(safe-area-inset-left);
-    background-image:
-      linear-gradient(var(--line-2) 1px,transparent 1px),
-      linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
-    background-size:28px 28px;
-    background-position:center top;
+    transition:background-color .25s ease,color .25s ease;
   }
-  .wrap{max-width:660px;margin:0 auto;padding:26px 18px 0}
+  /* сетка «местами» — фиксирована к экрану, проявляется мягкими пятнами */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:40px 40px;background-position:center top;
+    -webkit-mask-image:
+      radial-gradient(56% 44% at 15% 11%,#000 0%,transparent 72%),
+      radial-gradient(46% 42% at 89% 25%,#000 0%,transparent 72%),
+      radial-gradient(54% 46% at 75% 87%,#000 0%,transparent 72%),
+      radial-gradient(44% 42% at 30% 66%,#000 0%,transparent 72%);
+    mask-image:
+      radial-gradient(56% 44% at 15% 11%,#000 0%,transparent 72%),
+      radial-gradient(46% 42% at 89% 25%,#000 0%,transparent 72%),
+      radial-gradient(54% 46% at 75% 87%,#000 0%,transparent 72%),
+      radial-gradient(44% 42% at 30% 66%,#000 0%,transparent 72%);
+  }
+  .wrap{max-width:660px;margin:0 auto;padding:26px 18px 0;position:relative;z-index:1}
 
   /* ---- header ---- */
-  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
   .brand{font-family:var(--mono);font-weight:700;font-size:26px;letter-spacing:-.5px}
   .brand .d{color:var(--acc)}
+  .head-right{display:flex;align-items:center;gap:12px}
+  .theme-btn{width:36px;height:36px;flex:0 0 auto;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+  .theme-btn:hover{border-color:var(--acc);color:var(--ink)}
+  .theme-btn svg{width:18px;height:18px;display:block}
   .ver{font-family:var(--mono);font-size:11px;color:var(--muted-2)}
   .tag{color:var(--muted);font-size:14px;margin:0 0 22px}
   .tag b{color:var(--ink);font-weight:600}
@@ -170,10 +204,15 @@
   }
 </style>
 
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("shorts_theme")==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}</script>
+
 <div class="wrap">
   <header>
     <div class="brand"><span class="d">$</span>horts</div>
-    <div class="ver" id="ver">v0.1</div>
+    <div class="head-right">
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Сменить тему"></button>
+      <div class="ver" id="ver">v0.1</div>
+    </div>
   </header>
   <p class="tag">Прикинь доход канала на <b>YouTube Shorts</b> от рекламы по числу просмотров.</p>
 
@@ -280,10 +319,14 @@
 
 <script>
 "use strict";
-const VERSION="0.1";
+const VERSION="0.2";
 const FALLBACK_RATE=76.13;
-// цвета для inline-SVG (var() в презентационных атрибутах браузеры не резолвят)
-const C={acc:"#34e39b",muted:"#8b8b93",muted2:"#6a6a72",line:"rgba(255,255,255,.14)"};
+// цвета для inline-SVG (var() в презентационных атрибутах браузеры не резолвят) — читаем из текущей темы
+let C={acc:"#34e39b",muted:"#8b8b93",muted2:"#6a6a72",line:"rgba(255,255,255,.14)"};
+function readColors(){
+  const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();
+  C={acc:g("--acc"),muted:g("--muted"),muted2:g("--muted-2"),line:g("--line")};
+}
 
 // ---- модель ----
 const NICHES=[
@@ -316,7 +359,7 @@ const incomeMonth=(views,rpm)=>Math.max(0,views)/1000*rpm; // $/мес
 const state={
   views:1000000, niche:"fun", geo:"t3",
   advanced:false, rpm:0.035, rate:FALLBACK_RATE, goal:1000,
-  perShort:20000, count:50,
+  perShort:20000, count:50, theme:"dark",
 };
 
 // ---- форматирование ----
@@ -346,7 +389,7 @@ const el={
   outUsd:$("outUsd"),outRub:$("outRub"),outScenario:$("outScenario"),outDay:$("outDay"),
   outYear:$("outYear"),outPerMil:$("outPerMil"),chart:$("chart"),
   outNeed:$("outNeed"),outNeedDay:$("outNeedDay"),
-  rateNote:$("rateNote"),rateText:$("rateText"),share:$("share"),ver:$("ver"),
+  rateNote:$("rateNote"),rateText:$("rateText"),share:$("share"),ver:$("ver"),themeBtn:$("themeBtn"),
 };
 
 // заполнить ниши / гео
@@ -381,6 +424,7 @@ function render(){
 }
 
 function drawChart(m){
+  readColors();
   const w=300,h=120,bw=54,gap=(w-2*10-3*bw)/2,base=h-22,top=16;
   const max=Math.max(m.high,1e-9);
   const bars=[["low",m.low,C.muted2],["mid",m.mid,C.acc],["high",m.high,C.muted]];
@@ -459,9 +503,24 @@ function restore(){
   if(q.get("rate"))state._rateManual=true;
 }
 
+// ---- тема ----
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.1"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.9A8.5 8.5 0 1 1 11.1 3 6.6 6.6 0 0 0 21 12.9z"/></svg>';
+function setTheme(theme,save){
+  document.documentElement.setAttribute("data-theme",theme);
+  state.theme=theme;
+  el.themeBtn.innerHTML=theme==="dark"?SUN:MOON;
+  el.themeBtn.setAttribute("aria-label",theme==="dark"?"Включить светлую тему":"Включить тёмную тему");
+  const mt=document.getElementById("metaTheme");if(mt)mt.setAttribute("content",theme==="dark"?"#0e0e10":"#e9e8e2");
+  if(save){try{localStorage.setItem("shorts_theme",theme);}catch(e){}}
+  render();
+}
+el.themeBtn.addEventListener("click",()=>setTheme(state.theme==="dark"?"light":"dark",true));
+
 // ---- init ----
 function init(){
   el.ver.textContent="v"+VERSION;
+  setTheme(document.documentElement.getAttribute("data-theme")||"dark",false);
   restore();
   el.views.value=state.views;el.viewsRange.value=viewsToPos(state.views);
   el.niche.value=state.niche;syncGeo();
