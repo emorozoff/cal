@@ -104,7 +104,7 @@
   .hint{font-size:12px;color:var(--muted-2);margin-top:7px;font-family:var(--mono)}
   .hint b{color:var(--muted)}
 
-  input[type=number]{
+  input[type=number],input[type=text]{
     width:100%;
     background:var(--panel-2);
     border:1px solid var(--line);
@@ -200,7 +200,7 @@
       <div class="field">
         <label class="lab" for="count">Видео в месяц</label>
         <div class="unit">
-          <input type="number" id="count" min="0" step="1" value="30" inputmode="numeric">
+          <input type="text" id="count" value="30" inputmode="numeric" autocomplete="off">
           <span class="u">видео</span>
         </div>
       </div>
@@ -208,7 +208,7 @@
       <div class="field">
         <label class="lab" for="avgViews">Среднее просмотров на видео</label>
         <div class="unit">
-          <input type="number" id="avgViews" min="0" step="1000" value="50000" inputmode="numeric">
+          <input type="text" id="avgViews" value="50000" inputmode="numeric" autocomplete="off">
           <span class="u">просмотров</span>
         </div>
         <div class="hint" id="totalViews"></div>
@@ -257,7 +257,7 @@
       <h2>Обратный расчёт</h2>
       <label class="lab" for="goal">Хочу зарабатывать в месяц…</label>
       <div class="unit">
-        <input type="number" id="goal" min="0" step="50" value="1000" inputmode="numeric">
+        <input type="text" id="goal" value="1000" inputmode="numeric" autocomplete="off">
         <span class="u">$ / мес</span>
       </div>
       <div class="rev-out">
@@ -280,7 +280,7 @@
 
 <script>
 "use strict";
-const VERSION="0.3";
+const VERSION="0.4";
 const FALLBACK_RATE=76.13;
 const CBR_URL="https://www.cbr-xml-daily.ru/daily_json.js";
 
@@ -307,6 +307,33 @@ function usd(n){
   return n.toFixed(2);
 }
 const dec1=n=>n.toLocaleString("ru-RU",{maximumFractionDigits:1});
+
+// разделяем разряды точками прямо в поле ввода: 100000000 → 100.000.000
+const digitsOnly=s=>(s||"").replace(/\D/g,"");
+const groupDots=s=>String(s).replace(/\B(?=(\d{3})+(?!\d))/g,".");
+function reformatDigits(rawValue,caret){
+  const before=digitsOnly(rawValue.slice(0,caret)).length;
+  const digits=digitsOnly(rawValue);
+  const formatted=digits?groupDots(digits):"";
+  let pos=0,seen=0;
+  if(before>0){
+    for(let i=0;i<formatted.length;i++){
+      const c=formatted.charCodeAt(i);
+      if(c>=48&&c<=57)seen++;
+      if(seen===before){pos=i+1;break;}
+    }
+    if(seen<before)pos=formatted.length;
+  }
+  return {formatted,caret:pos,number:parseInt(digits||"0",10)};
+}
+function attachGrouped(input,apply){
+  input.addEventListener("input",()=>{
+    const r=reformatDigits(input.value,input.selectionStart);
+    input.value=r.formatted;
+    try{input.setSelectionRange(r.caret,r.caret);}catch(e){}
+    apply(Math.max(0,r.number));
+  });
+}
 
 // ---- элементы ----
 const $=id=>document.getElementById(id);
@@ -370,10 +397,10 @@ function drawChart(m){
 }
 
 // ---- ввод ----
-el.count.addEventListener("input",()=>{state.count=Math.max(0,Math.floor(+el.count.value||0));render();persist();});
-el.avgViews.addEventListener("input",()=>{state.avgViews=Math.max(0,Math.floor(+el.avgViews.value||0));render();persist();});
+attachGrouped(el.count,v=>{state.count=v;render();persist();});
+attachGrouped(el.avgViews,v=>{state.avgViews=v;render();persist();});
+attachGrouped(el.goal,v=>{state.goal=v;render();persist();});
 el.rpm.addEventListener("input",()=>{state.rpm=Math.max(0,+el.rpm.value||0);render();persist();});
-el.goal.addEventListener("input",()=>{state.goal=Math.max(0,+el.goal.value||0);render();persist();});
 el.rate.addEventListener("input",()=>{state.rate=Math.max(0,+el.rate.value||0);state._rateManual=true;markRate("Курс задан вручную",false);render();persist();});
 
 // ---- курс ЦБ ----
@@ -447,8 +474,8 @@ function init(){
   el.ver.textContent="v"+VERSION;
   setTheme(document.documentElement.getAttribute("data-theme")||"dark",false);
   restore();
-  el.count.value=state.count;el.avgViews.value=state.avgViews;
-  el.rpm.value=state.rpm;el.rate.value=state.rate;el.goal.value=state.goal;
+  el.count.value=groupDots(String(state.count));el.avgViews.value=groupDots(String(state.avgViews));
+  el.rpm.value=state.rpm;el.rate.value=state.rate;el.goal.value=groupDots(String(state.goal));
   render();persist();
   loadRate(); // автообновление курса из интернета при загрузке
 }
